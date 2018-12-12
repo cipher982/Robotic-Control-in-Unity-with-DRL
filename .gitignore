@@ -1,0 +1,12 @@
+
+*.ipynb
+*.dylib
+*.plist
+Reacher.app/Contents/MacOS/Reacher
+*.config
+*.browser
+*.aspx
+Reacher.app/Contents/Mono/etc/mono/config
+app/
+*.log
+.DS_Store
