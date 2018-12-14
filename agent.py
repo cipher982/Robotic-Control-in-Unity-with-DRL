@@ -2,11 +2,11 @@ import numpy as np
 import random
 from collections import namedtuple, deque
 
-from model import QNetwork
-
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
+
+from model import QNetwork
 
 BUFFER_SIZE = int(1e5)  # replay buffer size
 BATCH_SIZE = 64         # minibatch size
@@ -78,7 +78,8 @@ class Agent():
             return random.choice(np.arange(self.action_size))
 
     def learn(self, experiences, gamma):
-        """ Update value parameters using given batch of experience tuples
+        """ 
+        Update value parameters using given batch of experience tuples
 
         Params
         ======
