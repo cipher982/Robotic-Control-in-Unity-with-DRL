@@ -62,7 +62,15 @@ def dqn(n_episodes=20, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.995)
         states = env_info.vector_observations
         scores = []                        # list containing scores from each episode
         for t in range(max_t):
-            actions = agent.act(state, eps
+            actions = Agent.act(states, eps)
+            env_info = env.step(actions)[brain_name]
+            next_states = env_info.vector_observations
+            rewards = env_info.rewards
+            dones = env_info.local_done
+            scores += env_info.rewards
+            states = next_states
+            if np.any(dones):
+                break
     return scores
 
 scores = dqn()

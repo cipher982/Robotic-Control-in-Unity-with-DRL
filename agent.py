@@ -65,7 +65,7 @@ class Agent():
             state (array_like): current_state
             eps (float): epsilon, for epsilon-greedy action selection
         """
-        state = torch.from_numpy(state).float().unsqueeze(0).to(device)
+        state = torch.from_numpy(self).float().unsqueeze(0).to(device)
         self.qnetwork_local.eval()
         with torch.no_grad():
             action_values = self.qnetwork_local(state)
@@ -75,7 +75,7 @@ class Agent():
         if random.random() > eps:
             return np.argmax(action_values.cpu().data.numpy())
         else:
-            return random.choice(np.arange(self.action_size))
+            return np.random.randn(num_agents, action_size)
 
     def learn(self, experiences, gamma):
         """ 
