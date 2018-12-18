@@ -40,7 +40,7 @@ print("The state for the first agent looks like:", states[0])
 
 scores = np.zeros(num_agents)
 
-#agent = Agent(state_size=state_size, action_size=action_size, seed=seed)
+agent = Agent(state_size=state_size, action_size=action_size, seed=seed)
 
 
 def dqn(n_episodes=20, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.995):
@@ -62,7 +62,7 @@ def dqn(n_episodes=20, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.995)
         states = env_info.vector_observations
         scores = []                        # list containing scores from each episode
         for t in range(max_t):
-            actions = Agent.act(state=states, eps=eps)
+            actions = agent.act(state=states, eps=eps)
             env_info = env.step(actions)[brain_name]
             next_states = env_info.vector_observations
             rewards = env_info.rewards
