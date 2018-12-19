@@ -20,7 +20,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class Agent():
     """Interacts with and learns from the environment"""
 
-    def __init__(self, state_size, action_size, seed):
+    def __init__(self, state_size, action_size, seed, num_agents):
         """
         Initialize an Agent object
 
@@ -33,6 +33,7 @@ class Agent():
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(seed)
+        self.num_agents = num_agents
 
         # Q-Network - TD difference (target - local)
         self.qnetwork_local = QNetwork(state_size, action_size, seed).to(device)
@@ -65,7 +66,7 @@ class Agent():
             state (array_like): current_state
             eps (float): epsilon, for epsilon-greedy action selection
         """
-        state = torch.from_numpy(self).float().unsqueeze(0).to(device)
+        state = torch.from_numpy(state).float().unsqueeze(0).to(device)
         self.qnetwork_local.eval()
         with torch.no_grad():
             action_values = self.qnetwork_local(state)
@@ -75,7 +76,7 @@ class Agent():
         if random.random() > eps:
             return np.argmax(action_values.cpu().data.numpy())
         else:
-            return np.random.randn(num_agents, action_size)
+            return np.random.randn(self.num_agents, self.action_size)
 
     def learn(self, experiences, gamma):
         """ 

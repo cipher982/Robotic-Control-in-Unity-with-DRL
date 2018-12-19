@@ -39,8 +39,8 @@ print("There are {} agents. Each observes a state with length: {}".format(states
 print("The state for the first agent looks like:", states[0])
 
 scores = np.zeros(num_agents)
-
-agent = Agent(state_size=state_size, action_size=action_size, seed=seed)
+seed = 1
+agent = Agent(state_size=state_size, action_size=action_size, seed=seed, num_agents=num_agents)
 
 
 def dqn(n_episodes=20, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.995):
