@@ -43,7 +43,7 @@ seed = 1
 agent = Agent(state_size=state_size, action_size=action_size, seed=seed, num_agents=num_agents)
 
 
-def dqn(n_episodes=20, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.995):
+def dqn(n_episodes=200, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.995):
     """
     Deep Q-Learning
 
@@ -56,21 +56,33 @@ def dqn(n_episodes=20, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.995)
         eps_decay (float): multiplicative factor (per episode) for decreasing epsilon
     """
     scores_window = deque(maxlen=100)  # last 100 scores
-    eps = eps_start                    # initialize epsilon
+    all_scores = []
+    eps = eps_start   # initialize epsilon
     for i_episode in tqdm(range(1, n_episodes+1)):
         env_info = env.reset(train_mode=True)[brain_name]
         states = env_info.vector_observations
-        scores = []                        # list containing scores from each episode
+        score = 0  # list containing scores from each episode
         for t in range(max_t):
+            print("t:",t)
             actions = agent.act(state=states, eps=eps)
             env_info = env.step(actions)[brain_name]
             next_states = env_info.vector_observations
             rewards = env_info.rewards
             dones = env_info.local_done
-            scores += env_info.rewards
+            score += np.mean(env_info.rewards)
             states = next_states
             if np.any(dones):
                 break
+        scores_window.append(score)
+        all_scores.append(score)
+        eps = max(eps_end, eps_decay*eps)
+        print("\rEpisode {}\tAverage Score:{:.2f}".format(
+            i_episode, np.mean(scores_window), end=''))
+        if i_episode % 20:
+            print("\rEpisode {}\tAverage Score:{:.2f}".format(
+                i_episode, np.mean(scores_window)))
+        
+
     return scores
 
 scores = dqn()
