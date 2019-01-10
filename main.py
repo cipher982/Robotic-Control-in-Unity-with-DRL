@@ -62,8 +62,8 @@ def dqn(n_episodes=200, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.995
         env_info = env.reset(train_mode=True)[brain_name]
         states = env_info.vector_observations
         score = 0  # list containing scores from each episode
-        for t in range(max_t):
-            print("t:",t)
+        for t in tqdm(range(max_t)):
+            #print("t:",t)
             actions = agent.act(state=states, eps=eps)
             env_info = env.step(actions)[brain_name]
             next_states = env_info.vector_observations
@@ -84,6 +84,26 @@ def dqn(n_episodes=200, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.995
         
 
     return scores
+
+
+def ddpg(n_episodes=200, 
+        num_agents=num_agents, 
+        max_t=1000, 
+        eps_start=1.0, 
+        eps_end=0.01, 
+        eps_decay=0.995):
+        """
+        Deep Deterministic Policy Gradient
+
+        Params
+        ======
+        n_episodes (int): max number of training episodes
+        max_t (int): max number of timesteps per episode
+        eps_start (float): start value of epsilon, for epsilon-greedy action selection
+        eps_end (float): min value of epsilon
+        eps_decay (float): multiplicative factor (per episode) for decreasing epsilon
+         """
+
 
 scores = dqn()
 env.close()
