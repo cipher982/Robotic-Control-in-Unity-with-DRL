@@ -7,7 +7,7 @@ from tqdm import tqdm
 from unityagents import UnityEnvironment
 from collections import deque
 
-from agent import Agent
+from ddpg_agent import Agent, ReplayBuffer, OUNoise
 
 env = UnityEnvironment(file_name='app/Reacher.x86_64')
 print('Loaded env')
@@ -42,68 +42,66 @@ scores = np.zeros(num_agents)
 seed = 1
 agent = Agent(state_size=state_size, action_size=action_size, seed=seed, num_agents=num_agents)
 
-
-def dqn(n_episodes=200, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.995):
+def ddpg(n_episodes=200, 
+    num_agents=num_agents, 
+    max_t=1000, 
+    eps_start=1.0, 
+    eps_end=0.01, 
+    eps_decay=0.995):
     """
-    Deep Q-Learning
+    Deep Deterministic Policy Gradient
 
     Params
     ======
         n_episodes (int): max number of training episodes
-        max_t (int): max number of timesteps per episode
+        num_agents (int): count of agents to run
+        max_t (int): max number of steps per episode
         eps_start (float): start value of epsilon, for epsilon-greedy action selection
         eps_end (float): min value of epsilon
         eps_decay (float): multiplicative factor (per episode) for decreasing epsilon
     """
-    scores_window = deque(maxlen=100)  # last 100 scores
-    all_scores = []
-    eps = eps_start   # initialize epsilon
-    for i_episode in tqdm(range(1, n_episodes+1)):
-        env_info = env.reset(train_mode=True)[brain_name]
-        states = env_info.vector_observations
-        score = 0  # list containing scores from each episode
-        for t in tqdm(range(max_t)):
-            #print("t:",t)
-            actions = agent.act(state=states, eps=eps)
-            env_info = env.step(actions)[brain_name]
-            next_states = env_info.vector_observations
-            rewards = env_info.rewards
-            dones = env_info.local_done
-            score += np.mean(env_info.rewards)
-            states = next_states
-            if np.any(dones):
-                break
-        scores_window.append(score)
-        all_scores.append(score)
-        eps = max(eps_end, eps_decay*eps)
-        print("\rEpisode {}\tAverage Score:{:.2f}".format(
-            i_episode, np.mean(scores_window), end=''))
-        if i_episode % 20:
-            print("\rEpisode {}\tAverage Score:{:.2f}".format(
-                i_episode, np.mean(scores_window)))
-        
+    scores_deque = deque(maxlen=print_every)
+    scores = []
+    steps = 0
 
-    return scores
+    for episode_ix in range(n_episodes):
+        state = env.reset(train_mode=True)[brain_name].vector_observations
+        agents.reset()
+        score = 0
+        for step in range(max_steps):
+            for i, noise in enumerate(noises):
+                action = agents.act(state) + noise.sample()
+                action = np.clip(action, -1, 1)
+                curr_env = env.step(action)['ReacherBrain']]
+                next_state = curr_env.vector_observations
+                reward = curr_env.rewards[0]
+                done = curr_env.local_done[0]
+                state = next_state
+                agents.add(state, action, reward, next_state, done)
+                steps += 1
+                if steps > 20:
+                    agent.learn_from_buffer(train_counter=10)
+                    steps = 0
+                score += reward
+                if done:
+                    break
+        scores_deque.append(score)
+        scores.append(score)
 
+        print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_deque)), end="")
+        torch.save(agents.actor_local.state_dict(), 'checkpoint_actor_v1.pth')
+        torch.save(agents.critic_local.state_dict(), 'checkpoint_critic_v1.pth')
+        if i_episode % print_every == 0:
+            print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_deque)))
 
-def ddpg(n_episodes=200, 
-        num_agents=num_agents, 
-        max_t=1000, 
-        eps_start=1.0, 
-        eps_end=0.01, 
-        eps_decay=0.995):
-        """
-        Deep Deterministic Policy Gradient
+        return scores
 
-        Params
-        ======
-        n_episodes (int): max number of training episodes
-        max_t (int): max number of timesteps per episode
-        eps_start (float): start value of epsilon, for epsilon-greedy action selection
-        eps_end (float): min value of epsilon
-        eps_decay (float): multiplicative factor (per episode) for decreasing epsilon
-         """
-
-
-scores = dqn()
+scores = ddpg()
 env.close()
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+plt.plot(np.arange(1, len(scores) + 1), scores)
+plt.ylabel('Score')
+plt.xlabel('Episode #')
+plt.show()
