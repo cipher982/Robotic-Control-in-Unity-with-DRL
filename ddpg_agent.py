@@ -61,7 +61,7 @@ class Agent():
         self.memory.add(state, action, reward, next_state, done)
         # Learn step if buffer reaches specific level
         if len(self.memory) > BATCH_SIZE and self.steps_counter >= 20:
-            for in in range(self.train_counter):
+            for i in range(self.train_counter):
                 experiences = self.memory.sample()
                 self.learn(experiences, GAMMA)
             self.timesteps_counter = 0
@@ -130,7 +130,7 @@ class Agent():
         self.actor_optimizer.step()
 
         ############# Update Target Networks #############
-        self.soft_update(self, local_model, target_model, tau):
+        self.soft_update(self, local_model, target_model, tau)
         self.soft_update(self.actor_local, self.actor_target, TAU)
 
     def soft_update(self, local_model, target_model, tau):

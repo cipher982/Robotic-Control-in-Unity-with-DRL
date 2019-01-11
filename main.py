@@ -72,7 +72,7 @@ def ddpg(n_episodes=200,
             for i, noise in enumerate(noises):
                 action = agents.act(state) + noise.sample()
                 action = np.clip(action, -1, 1)
-                curr_env = env.step(action)['ReacherBrain']]
+                curr_env = env.step(action)['ReacherBrain']
                 next_state = curr_env.vector_observations
                 reward = curr_env.rewards[0]
                 done = curr_env.local_done[0]
