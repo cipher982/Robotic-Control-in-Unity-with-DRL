@@ -44,7 +44,7 @@ PRINT_EVERY = 1
 SEED = 1
 NUM_AGENTS = 20
 BUFFER_SIZE = int(1e5)
-BATCH_SIZE = 512
+BATCH_SIZE = 128
 SEED = 72
 
 scores = np.zeros(num_agents)
