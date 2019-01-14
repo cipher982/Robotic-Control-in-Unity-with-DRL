@@ -16,7 +16,6 @@ LR = 5e-3               # learning rate
 UPDATE_EVERY = 4        # how often to update the network
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print("Using device: {}".format(device))
 
 class Agent():
     """Interacts with and learns from the environment"""
