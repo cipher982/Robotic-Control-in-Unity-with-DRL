@@ -2,14 +2,16 @@ import gym
 import random
 import torch
 import numpy as np
+import sys
 
 from tqdm import tqdm
 from unityagents import UnityEnvironment
 from collections import deque
+import matplotlib.pyplot as plt
 
 from ddpg_agent import Agent, ReplayBuffer, OUNoise
 
-env = UnityEnvironment(file_name='app/Reacher.x86_64')
+env = UnityEnvironment(file_name='app/Reacher.app')
 print('Loaded env')
 
 # Get the default brain
@@ -38,12 +40,20 @@ state_size = states.shape[1]
 print("There are {} agents. Each observes a state with length: {}".format(states.shape[0], state_size))
 print("The state for the first agent looks like:", states[0])
 
+PRINT_EVERY = 1
+SEED = 1
+NUM_AGENTS = 20
+BUFFER_SIZE = int(1e5)
+BATCH_SIZE = 512
+SEED = 72
+
 scores = np.zeros(num_agents)
-seed = 1
-agent = Agent(state_size=state_size, action_size=action_size, seed=seed, num_agents=num_agents)
+agent = Agent(state_size=state_size, action_size=action_size,  num_agents=NUM_AGENTS, seed=SEED)
+#noises = [OUNoise(action_size, SEED + i) for i in range(NUM_AGENTS)]
+#[noise.reset() for noise in noises]
 
 def ddpg(n_episodes=200, 
-    num_agents=num_agents, 
+    num_agents=NUM_AGENTS, 
     max_t=1000, 
     eps_start=1.0, 
     eps_end=0.01, 
@@ -60,41 +70,37 @@ def ddpg(n_episodes=200,
         eps_end (float): min value of epsilon
         eps_decay (float): multiplicative factor (per episode) for decreasing epsilon
     """
-    scores_deque = deque(maxlen=print_every)
-    scores = []
+    scores_deque = deque(maxlen=PRINT_EVERY)
+    scores_all = []
     steps = 0
+    #max_steps = 1000
 
     for episode_ix in range(n_episodes):
-        state = env.reset(train_mode=True)[brain_name].vector_observations
-        agents.reset()
-        score = 0
-        for step in range(max_steps):
-            for i, noise in enumerate(noises):
-                action = agents.act(state) + noise.sample()
-                action = np.clip(action, -1, 1)
-                curr_env = env.step(action)['ReacherBrain']
-                next_state = curr_env.vector_observations
-                reward = curr_env.rewards[0]
-                done = curr_env.local_done[0]
-                state = next_state
-                agents.add(state, action, reward, next_state, done)
-                steps += 1
-                if steps > 20:
-                    agent.learn_from_buffer(train_counter=10)
-                    steps = 0
-                score += reward
-                if done:
-                    break
-        scores_deque.append(score)
-        scores.append(score)
+        env_info = env.reset(train_mode=True)[brain_name]
+        states = env_info.vector_observations
+        agent.reset()
+        scores = np.zeros(NUM_AGENTS)
+        while True:
+            actions = agent.act(states)                        # select an action (for each agent)
+            env_info = env.step(actions)[brain_name]           # send all actions to tne environment
+            next_states = env_info.vector_observations         # get next state (for each agent)
+            rewards = env_info.rewards                         # get reward (for each agent)
+            dones = env_info.local_done                        # see if episode finished
+            agent.step(states, actions, rewards, next_states, dones)
+            scores += rewards                                  # update the score (for each agent)
+            states = next_states                               # roll over states to next time step
+            if np.any(dones):                                  # exit loop if episode finished
+                break
+        scores_deque.append(np.mean(scores))
+        scores_all.append(np.mean(scores))
 
-        print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_deque)), end="")
-        torch.save(agents.actor_local.state_dict(), 'checkpoint_actor_v1.pth')
-        torch.save(agents.critic_local.state_dict(), 'checkpoint_critic_v1.pth')
-        if i_episode % print_every == 0:
-            print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_deque)))
+        #print('\rEpisode {}\tAverage Score: {:.2f}'.format(episode_ix, np.mean(scores_deque)), end="")
+        torch.save(agent.actor_local.state_dict(), 'checkpoint_actor_v1.pth')
+        torch.save(agent.critic_local.state_dict(), 'checkpoint_critic_v1.pth')
+        if episode_ix % PRINT_EVERY == 0:
+            print('\rEpisode {}\tAverage Score: {:.2f}'.format(episode_ix, np.mean(scores_deque)))
 
-        return scores
+    return scores_all
 
 scores = ddpg()
 env.close()
