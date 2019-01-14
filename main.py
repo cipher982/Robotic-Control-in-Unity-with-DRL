@@ -14,6 +14,9 @@ from ddpg_agent import Agent, ReplayBuffer, OUNoise
 env = UnityEnvironment(file_name='app/Reacher.app')
 print('Loaded env')
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print("Using device: {}".format(device))
+
 # Get the default brain
 brain_name = env.brain_names[0]
 brain = env.brains[brain_name]
