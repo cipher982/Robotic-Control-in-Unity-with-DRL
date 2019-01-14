@@ -1,7 +1,11 @@
 
 [image_training_performance]: https://raw.githubusercontent.com/cipher982/Robotic-Control-in-Unity-with-DRL/master/images/training_performance.png
 
+[image_arm_environment_sample]: https://raw.githubusercontent.com/cipher982/Robotic-Control-in-Unity-with-DRL/master/images/arm_environment_sample.gif
+
 # Controlling Multiple Robotic Arms with DDPG Reinforcement Learning
+![image_arm_environment_sample]
+
 Like my last project https://github.com/cipher982/DRL-DQN-Model this one is built upon ideas of deep reinforcement learning, but with two additional features: dual actor/critic neural networks and multiple agents running simaltatneuously.
 
 The specific algorithm we will use is referred to as **Deep Deterministic Policy Gradient learning**, or **DDPG**. This is a *model-free, off-policy, actor-critic algorithm* that excels at learning in high-dimensional (continuous) action spaces.
@@ -43,7 +47,7 @@ Below are the values I used for the most recent model. These are a combination o
 #### Performance
 After 200 episodes the reward was beginning to approach the mid-to-high 30s, with the past 100 episodes reaching an average of 30 right before the 200 mark. In the image below you can see how the performance begins to level off around the 125 episode mark.
 
-[image_training_performance]
+![image_training_performance]
 
 #### Future Work
 In my expirementation (due to slow training times) I limited the max episodes to 200. While performance seems plateu around 125, I did not play around with many of the hyperparameters too much and there is likely room for optimization. There are also many new algorithms that have been introduced recently such as: DDQN, A3C, A2C, Dueling DDQN, and even a method [combining them together called Rainbow](https://arxiv.org/abs/1710.02298).
