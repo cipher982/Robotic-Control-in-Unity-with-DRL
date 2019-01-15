@@ -44,10 +44,9 @@ print("There are {} agents. Each observes a state with length: {}".format(states
 print("The state for the first agent looks like:", states[0])
 
 PRINT_EVERY = 1
-SEED = 1
 NUM_AGENTS = 20
 BUFFER_SIZE = int(1e5)
-BATCH_SIZE = 128
+BATCH_SIZE = 1028
 SEED = 72
 
 scores = np.zeros(num_agents)

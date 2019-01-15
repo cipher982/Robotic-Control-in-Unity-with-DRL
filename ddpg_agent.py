@@ -10,10 +10,10 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 BUFFER_SIZE = int(1e5)
-BATCH_SIZE = 128
+BATCH_SIZE = 1028
 GAMMA = 0.99
 TAU = 1e-3
-LR_ACTOR = 1e-4
+LR_ACTOR = 1e-3
 LR_CRITIC = 1e-3
 WEIGHT_DECAY = 0
 
